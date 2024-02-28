@@ -30,9 +30,13 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
+//route handler to display single URL from urlDatbase and its shortened form (ID)
 app.get("/urls/:id", (req, res) => {
-  const id = req.params.id;
-  res.render("urls_index", id);
+  //store the id/key as a variable
+  const urlID = req.params.id;
+  const templateVars = { id: req.params.id, longURL: urlDatabas[urlID] }
+  //pass single URL and it's shortened form to urls_show to diplay to client
+  res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {
