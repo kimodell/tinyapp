@@ -33,11 +33,9 @@ app.get("/urls", (req, res) => {
 
 //route handler to display single URL from urlDatabase and its shortened form (ID)
 app.get("/urls/:id", (req, res) => {
-  //store the id/key as a variable
-  const urlID = req.params.id;
-  //pass longURL and url ID to thmplateVars object
-  const templateVars = { id: req.params.id, longURL: urlDatabas[urlID] }
-  //pass single URL and it's shortened form to urls_show to diplay to client
+  //pass longURL and url ID to templateVars object
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] }
+  //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
 });
 
