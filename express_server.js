@@ -25,15 +25,17 @@ app.get("/hello", (req, res) => {
 
 //route handler to display entire urlDatabase in /urls
 app.get("/urls", (req, res) => {
+  //pass urlDatabase info to templateVars
   const templateVars = { urls: urlDatabase };
   // pass URL data to rendered url_index template to display to client
   res.render("urls_index", templateVars);
 });
 
-//route handler to display single URL from urlDatbase and its shortened form (ID)
+//route handler to display single URL from urlDatabase and its shortened form (ID)
 app.get("/urls/:id", (req, res) => {
   //store the id/key as a variable
   const urlID = req.params.id;
+  //pass longURL and url ID to thmplateVars object
   const templateVars = { id: req.params.id, longURL: urlDatabas[urlID] }
   //pass single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
