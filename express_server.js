@@ -8,7 +8,7 @@ app.set("view engine", "ejs");
 //function to parse bodyfor POST from a Buffer to a string
 app.use(express.urlencoded({ extended: true }));
 
-//generate random string of 6 alphanumeric characters
+//generate random string of 6 alphanumeric characters to create short URL ID
 function generateRandomString() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let newString = "";
@@ -50,6 +50,17 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//route to handle from submssion to create tinyurl and save it in urlDatabase
+app.post("/urls", (req, res) => {
+  //generate random ID
+  const id = generateRandomString();
+  // stores longURL
+  const { longURL } = req.body
+  //add key:value paif of  id:longURL to database
+  urlDatabase[id] = longURL
+  //redirects used to newpage with new short URL
+  res.redirect(`/urls/${id}`);
+});
 
 //route handler to display single URL from urlDatabase and its shortened form (ID)
 app.get("/urls/:id", (req, res) => {
@@ -59,13 +70,6 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-
-//route to handle from submssion
-app.post("/urls", (req, res) => {
-  //logs POST request to the console
-  console.log(req.body);
-  res.send("Ok"); //respond with okay
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
