@@ -5,17 +5,17 @@ const PORT = 8080; // default port 8080
 //set EJS as view engine
 app.set("view engine", "ejs");
 
-//function to parse bodyfor POST from a Buffer to a string
+//parse body for POST from a Buffer to a string
 app.use(express.urlencoded({ extended: true }));
 
-//generate random string of 6 alphanumeric characters to create shortURL ID
+//generate random string to create shortURL ID
 function generateRandomString() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let newString = "";
+  let randomString = "";
   for (let i = 0; i < 6; i++) {
-    newString += chars.charAt(Math.floor(Math.random() * chars.length));
+    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  return newString;
+  return randomString;
 }
 
 const urlDatabase = {
@@ -37,7 +37,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-//route handler to display entire urlDatabase in /urls
+//display entire urlDatabase in /urls
 app.get("/urls", (req, res) => {
   //pass urlDatabase info to templateVars
   const templateVars = { urls: urlDatabase };
@@ -45,12 +45,12 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-//route to render template in urls_new/.ejs in browser
+//render template in urls_new/.ejs in browser
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-//route to handle from submssion to create shortURL and save it in urlDatabase
+//handle from submssion to create and save shortURL
 app.post("/urls", (req, res) => {
   //generate random ID to be used as shortURL
   const id = generateRandomString();
@@ -62,13 +62,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
-//route to handle shortURL requests so clicking the id/shortURL will redirect to it's longURL
+//handle shortURL requests to redirect shortURL click to longURL
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
-//route handler to display single URL from urlDatabase and its shortURL (id)
+//display single URL from urlDatabase
 app.get("/urls/:id", (req, res) => {
   //pass longURL and url ID to templateVars object
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
