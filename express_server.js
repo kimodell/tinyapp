@@ -8,7 +8,7 @@ app.set("view engine", "ejs");
 //function to parse bodyfor POST from a Buffer to a string
 app.use(express.urlencoded({ extended: true }));
 
-//generate random string of 6 alphanumeric characters to create short URL ID
+//generate random string of 6 alphanumeric characters to create shortURL ID
 function generateRandomString() {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let newString = "";
@@ -52,13 +52,13 @@ app.get("/urls/new", (req, res) => {
 
 //route to handle from submssion to create shortURL and save it in urlDatabase
 app.post("/urls", (req, res) => {
-  //generate random ID
+  //generate random ID to be used as shortURL
   const id = generateRandomString();
   // stores longURL
   const { longURL } = req.body
   //add key:value pair of  id:longURL to database
   urlDatabase[id] = longURL
-  //redirects used to newpage with new short URL
+  //redirects used to new page with new short URL
   res.redirect(`/urls/${id}`);
 });
 
