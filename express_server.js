@@ -9,7 +9,14 @@ app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 
 //generate random string of 6 alphanumeric characters
-function generateRandomString() {}
+function generateRandomString() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let newString = "";
+  for (let i = 0; i < 6; i++) {
+    newString += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return newString;
+}
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -39,7 +46,7 @@ app.get("/urls", (req, res) => {
 });
 
 //route to render template in urls_new/.ejs in browser
-app.get("/urls/new", (req, res) =>{
+app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
@@ -47,7 +54,7 @@ app.get("/urls/new", (req, res) =>{
 //route handler to display single URL from urlDatabase and its shortened form (ID)
 app.get("/urls/:id", (req, res) => {
   //pass longURL and url ID to templateVars object
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] }
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
 });
