@@ -50,19 +50,25 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
-//route to handle from submssion to create tinyurl and save it in urlDatabase
+//route to handle from submssion to create shortURL and save it in urlDatabase
 app.post("/urls", (req, res) => {
   //generate random ID
   const id = generateRandomString();
   // stores longURL
   const { longURL } = req.body
-  //add key:value paif of  id:longURL to database
+  //add key:value pair of  id:longURL to database
   urlDatabase[id] = longURL
   //redirects used to newpage with new short URL
   res.redirect(`/urls/${id}`);
 });
 
-//route handler to display single URL from urlDatabase and its shortened form (ID)
+//route to handle shortURL requests so clicking the id/shortURL will redirect to it's longURL
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
+
+//route handler to display single URL from urlDatabase and its shortURL (id)
 app.get("/urls/:id", (req, res) => {
   //pass longURL and url ID to templateVars object
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
