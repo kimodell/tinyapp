@@ -26,19 +26,19 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-// app.get("/", (req, res) => {
-//   res.send("Hello!");
-// });
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
 
 //additional endpoints 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// //additional response containing HTML code to be rendered in client browser
-// app.get("/hello", (req, res) => {
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
+//additional response containing HTML code to be rendered in client browser
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
 
 //display entire urlDatabase in /urls
 app.get("/urls", (req, res) => {
@@ -91,6 +91,12 @@ app.post("/login", (req, res) => {
   const { username } = req.body;
   //set cookie named 'username'
   res.cookie('username', username);
+  res.redirect("/urls");
+});
+
+//implement logout by clearing username cookie
+app.post("/logout", (req, res) => {
+  res.clearCookie('username');
   res.redirect("/urls");
 });
 
