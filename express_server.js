@@ -1,12 +1,15 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+const cookieParser = require("cookie-parser");
 
 //set EJS as view engine
 app.set("view engine", "ejs");
 
 //parse body for POST from a Buffer to a string
 app.use(express.urlencoded({ extended: true }));
+//parses cookie to display tp user
+app.use(cookieParser());
 
 //generate random string to create shortURL ID
 function generateRandomString() {
@@ -23,31 +26,37 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+// app.get("/", (req, res) => {
+//   res.send("Hello!");
+// });
 
 //additional endpoints 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-//additional response containing HTML code to be rendered in client browser
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
+// //additional response containing HTML code to be rendered in client browser
+// app.get("/hello", (req, res) => {
+//   res.send("<html><body>Hello <b>World</b></body></html>\n");
+// });
 
 //display entire urlDatabase in /urls
 app.get("/urls", (req, res) => {
   //pass urlDatabase info to templateVars
-  const templateVars = { urls: urlDatabase };
-  // pass URL data to rendered url_index template to display to client
+  const templateVars = { 
+    username: req.cookies["username"], // passes username urls index page
+    urls: urlDatabase,
+  };
+  // render url_index template to display info in templateVars to client
   res.render("urls_index", templateVars);
 });
 
 //render template in urls_new/.ejs in browser
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies["username"], // passes username urls/new page
+  };
+  res.render("urls_new", templateVars);
 });
 
 //handle from submssion to create and save shortURL
@@ -55,16 +64,16 @@ app.post("/urls", (req, res) => {
   //generate random ID to be used as shortURL
   const id = generateRandomString();
   // defines longURL
-  const { longURL } = req.body
+  const { longURL } = req.body;
   //add key:value pair of  id:longURL to database
-  urlDatabase[id] = longURL
+  urlDatabase[id] = longURL;
   //redirects used to new page with new short URL
   res.redirect(`/urls/${id}`);
 });
 
 //delete specific existing shortened URL from database
-app.post("/urls/:id/delete", (req, res) =>{
-  delete urlDatabase[req.params.id]
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
   //redirect user back to urls index page
   res.redirect("/urls");
 });
@@ -81,9 +90,9 @@ app.post("/urls/:id/update", (req, res) => {
 app.post("/login", (req, res) => {
   const { username } = req.body;
   //set cookie named 'username'
-  res.cookie ('username', username);
+  res.cookie('username', username);
   res.redirect("/urls");
-})
+});
 
 //handle shortURL requests to redirect shortURL click to longURL
 app.get("/u/:id", (req, res) => {
@@ -94,7 +103,11 @@ app.get("/u/:id", (req, res) => {
 //display single URL from urlDatabase
 app.get("/urls/:id", (req, res) => {
   //pass longURL and url ID to templateVars object
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies["username"] // passes username to display to user
+   };
   //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
 });
