@@ -74,9 +74,16 @@ app.post("/urls/:id/update", (req, res) => {
   const { newLongURL } = req.body;
   //update longURL in urlDatabase based on ID
   urlDatabase[req.params.id] = newLongURL;
-  //redirect user back to urls index page
   res.redirect("/urls");
 });
+
+//create username, store username in 'username' cookie
+app.post("/login", (req, res) => {
+  const { username } = req.body;
+  //set cookie named 'username'
+  res.cookie ('username', username);
+  res.redirect("/urls");
+})
 
 //handle shortURL requests to redirect shortURL click to longURL
 app.get("/u/:id", (req, res) => {
