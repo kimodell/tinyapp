@@ -54,7 +54,7 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls", (req, res) => {
   //generate random ID to be used as shortURL
   const id = generateRandomString();
-  // stores longURL
+  // defines longURL
   const { longURL } = req.body
   //add key:value pair of  id:longURL to database
   urlDatabase[id] = longURL
@@ -65,7 +65,16 @@ app.post("/urls", (req, res) => {
 //delete specific existing shortened URL from database
 app.post("/urls/:id/delete", (req, res) =>{
   delete urlDatabase[req.params.id]
-  //redirect client back to urls index page
+  //redirect user back to urls index page
+  res.redirect("/urls");
+});
+
+//update specific longURL based on ID selected by user
+app.post("/urls/:id/update", (req, res) => {
+  const { newLongURL } = req.body;
+  //update longURL in urlDatabase based on ID
+  urlDatabase[req.params.id] = newLongURL;
+  //redirect user back to urls index page
   res.redirect("/urls");
 });
 
