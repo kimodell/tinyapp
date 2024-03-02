@@ -62,6 +62,13 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);
 });
 
+//delete specific existing shortened URL from database
+app.post("/urls/:id/delete", (req, res) =>{
+  delete urlDatabase[req.params.id]
+  //redirect client back to urls index page
+  res.redirect("/urls");
+});
+
 //handle shortURL requests to redirect shortURL click to longURL
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
