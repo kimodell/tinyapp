@@ -43,7 +43,7 @@ app.get("/hello", (req, res) => {
 //display entire urlDatabase in /urls
 app.get("/urls", (req, res) => {
   //pass urlDatabase info to templateVars
-  const templateVars = { 
+  const templateVars = {
     username: req.cookies["username"], // passes username urls index page
     urls: urlDatabase,
   };
@@ -53,7 +53,7 @@ app.get("/urls", (req, res) => {
 
 //render template in urls_new/.ejs in browser
 app.get("/urls/new", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     username: req.cookies["username"], // passes username urls/new page
   };
   res.render("urls_new", templateVars);
@@ -109,17 +109,21 @@ app.get("/u/:id", (req, res) => {
 //display single URL from urlDatabase
 app.get("/urls/:id", (req, res) => {
   //pass longURL and url ID to templateVars object
-  const templateVars = { 
-    id: req.params.id, 
+  const templateVars = {
+    id: req.params.id,
     longURL: urlDatabase[req.params.id],
     username: req.cookies["username"] // passes username to display to user
-   };
+  };
   //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
 });
 
+//render register template 
 app.get("/register", (req, res) => {
-  res.render("register", );
+  const templateVars = {
+    username: req.cookies["username"], // passes username urls/new page
+  };
+  res.render("register", templateVars);
 });
 
 
