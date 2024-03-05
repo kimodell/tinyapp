@@ -19,7 +19,7 @@ function generateRandomString() {
     randomString += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return randomString;
-};
+}
 
 //generate random user ID
 function generateRandomID() {
@@ -54,7 +54,7 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-//additional endpoints 
+//additional endpoints
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -83,7 +83,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-//render register template 
+//render register template
 app.get("/register", (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id], // passes user to urls/new page
@@ -122,7 +122,7 @@ app.post("/urls/:id/update", (req, res) => {
 app.post("/login", (req, res) => {
   const { user } = req.body;
   //set cookie named 'user'
-  res.cookie('user_id', userId);
+  res.cookie('user_id', user);
   res.redirect("/urls");
 });
 
@@ -136,13 +136,13 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   //generate random userId
   const userId = generateRandomID();
-  //extract email and password from the request body 
+  //extract email and password from the request body
   const { email, password } = req.body;
 
   //check if email or password is empty
   if (!email || !password) {
     return res.status(400).send("Email and password cannot be blank.");
-  };
+  }
 
   //check if email already exists in users object
   function isEmailRegistered(users, email) {
@@ -152,11 +152,11 @@ app.post("/register", (req, res) => {
       }
     }
     return false;
-  };
+  }
 
   if (isEmailRegistered(users, email)) {
     return res.status(400).send("Email already registered.");
-  };
+  }
 
   //create new user in the users object
   users[userId] = {
