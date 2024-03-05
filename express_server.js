@@ -83,14 +83,6 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
-//render register template
-app.get("/register", (req, res) => {
-  const templateVars = {
-    user: users[req.cookies.user_id], // passes user to urls/new page
-  };
-  res.render("register", templateVars);
-});
-
 //handle from submssion to create and save shortURL
 app.post("/urls", (req, res) => {
   //generate random ID to be used as shortURL
@@ -130,6 +122,14 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
   res.redirect("/urls");
+});
+
+//render register template
+app.get("/register", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id], // passes user to urls/new page
+  };
+  res.render("register", templateVars);
 });
 
 //handle from submssion to create and save registration
@@ -174,6 +174,14 @@ app.post("/register", (req, res) => {
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
+});
+
+//render login template
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id], // passes user to login page
+  };
+  res.render("login", templateVars);
 });
 
 //display single URL from urlDatabase
