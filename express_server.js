@@ -142,20 +142,29 @@ app.post("/register", (req, res) => {
   //check if email or password is empty
   if (!email || !password) {
     return res.status(400).send("Email and password cannot be blank.");
-  }
-  //check if email already exists in users database
-  for (const userKey in users) {
-    if (users[userKey].email === email) {
-      return res.status(400).send("Email already registered.");
+  };
+
+  //check if email already exists in users object
+  function isEmailRegistered(users, email) {
+    for (const userKey in users) {
+      if (users[userKey].email === email) {
+        return true;
+      }
     }
-  }
+    return false;
+  };
+
+  if (isEmailRegistered(users, email)) {
+    return res.status(400).send("Email already registered.");
+  };
+
   //create new user in the users object
   users[userId] = {
     id: userId,
     email: email,
     password: password
   };
- 
+
   //set cookie for user_id
   res.cookie('user_id', userId);
   res.redirect("/urls");
