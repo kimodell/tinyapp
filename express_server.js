@@ -19,11 +19,35 @@ function generateRandomString() {
     randomString += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return randomString;
+};
+
+//generate random user ID
+function generateRandomID() {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let randomString = "";
+  for (let i = 0; i < 6; i++) {
+    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return randomString;
 }
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+//object to store user registration data
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "a@a.com",
+    password: "1234",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "b@b.com",
+    password: "5678",
+  },
 };
 
 app.get("/", (req, res) => {
@@ -44,7 +68,7 @@ app.get("/hello", (req, res) => {
 app.get("/urls", (req, res) => {
   //pass urlDatabase info to templateVars
   const templateVars = {
-    username: req.cookies["username"], // passes username urls index page
+    user: users[req.cookies.user_id], // passes user to urls index page
     urls: urlDatabase,
   };
   // render url_index template to display info in templateVars to client
@@ -54,9 +78,17 @@ app.get("/urls", (req, res) => {
 //render template in urls_new/.ejs in browser
 app.get("/urls/new", (req, res) => {
   const templateVars = {
-    username: req.cookies["username"], // passes username urls/new page
+    user: users[req.cookies.user_id], // passes user to urls/new page
   };
   res.render("urls_new", templateVars);
+});
+
+//render register template 
+app.get("/register", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id], // passes user to urls/new page
+  };
+  res.render("register", templateVars);
 });
 
 //handle from submssion to create and save shortURL
@@ -88,15 +120,44 @@ app.post("/urls/:id/update", (req, res) => {
 
 //create username, store username in 'username' cookie
 app.post("/login", (req, res) => {
-  const { username } = req.body;
-  //set cookie named 'username'
-  res.cookie('username', username);
+  const { user } = req.body;
+  //set cookie named 'user'
+  res.cookie('user_id', userId);
   res.redirect("/urls");
 });
 
 //implement logout by clearing username cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie('username');
+  res.clearCookie('user_id');
+  res.redirect("/urls");
+});
+
+//handle from submssion to create and save registration
+app.post("/register", (req, res) => {
+  //generate random userId
+  const userId = generateRandomID();
+  //extract email and password from the request body 
+  const { email, password } = req.body;
+
+  //check if email or password is empty
+  if (!email || !password) {
+    return res.status(400).send("Email and password cannot be blank.");
+  }
+  //check if email already exists in users database
+  for (const userKey in users) {
+    if (users[userKey].email === email) {
+      return res.status(400).send("Email already registered.");
+    }
+  }
+  //create new user in the users object
+  users[userId] = {
+    id: userId,
+    email: email,
+    password: password
+  };
+ 
+  //set cookie for user_id
+  res.cookie('user_id', userId);
   res.redirect("/urls");
 });
 
@@ -112,20 +173,11 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies["username"] // passes username to display to user
+    user: users[req.cookies.user_id] // passes username to display to user
   };
   //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
 });
-
-//render register template 
-app.get("/register", (req, res) => {
-  const templateVars = {
-    username: req.cookies["username"], // passes username urls/new page
-  };
-  res.render("register", templateVars);
-});
-
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
