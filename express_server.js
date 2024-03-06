@@ -135,12 +135,12 @@ app.post("/login", (req, res) => {
   //if email is not registered to a user, return 403 status code
   const user = findUserWithEmail(users, email);
   if (!user) {
-    return res.status(403).send("Email or password incorrect");
+    return res.status(403).send("Invalid login");
   }
 
   //check if password is the same as password for user with corresponding email
   if (user.password !== password) {
-    return res.status(403).send("Incorrect password");
+    return res.status(403).send("Invalid login");
   }
 
   //if email and password are correct, store cookie to login
