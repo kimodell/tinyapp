@@ -127,7 +127,7 @@ app.get("/login", (req, res) => {
   res.render("login", templateVars);
 });
 
-//create username, store username in 'username' cookie
+//login with email and password
 app.post("/login", (req, res) => {
   //extract email and password from the request body
   const { email, password } = req.body;
@@ -148,7 +148,7 @@ app.post("/login", (req, res) => {
   res.redirect("/urls");
 });
 
-//implement logout by clearing username cookie
+//implement logout by clearing user_id cookie
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
   res.redirect("/login");
@@ -203,7 +203,7 @@ app.get("/urls/:id", (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[req.params.id],
-    user: users[req.cookies.user_id] // passes username to display to user
+    user: users[req.cookies.user_id] // passes user_id to display to user
   };
   //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
