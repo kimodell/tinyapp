@@ -30,15 +30,15 @@ function generateRandomID() {
   }
   return randomString;
 }
-  //check if email already registered
-  function findUserWithEmail(users, email) {
-    for (const userKey in users) {
-      if (users[userKey].email === email) {
-        return users[userKey];
-      }
+//check if email already registered
+function findUserWithEmail(users, email) {
+  for (const userKey in users) {
+    if (users[userKey].email === email) {
+      return users[userKey];
     }
-   return false;
   }
+  return false;
+}
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -133,15 +133,15 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   //if email is not registered to a user, return 403 status code
-  const user = findUserWithEmail(users, email)
+  const user = findUserWithEmail(users, email);
   if (!user) {
-    return res.status(403).send("Email not valid");
-  } 
-   
+    return res.status(403).send("Email or password incorrect");
+  }
+
   //check if password is the same as password for user with corresponding email
   if (user.password !== password) {
     return res.status(403).send("Incorrect password");
-  } 
+  }
 
   //if email and password are correct, store cookie to login
   res.cookie('user_id', user.id);
