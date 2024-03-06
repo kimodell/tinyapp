@@ -40,6 +40,17 @@ function findUserWithEmail(users, email) {
   return false;
 }
 
+function checkIfLoggedIn(req, res, next) {
+  //chek to see if user_id cookie is already stored
+  if (req.cookies['user_id']) {
+      //if cookie is found, user is logged in. Redirect to /urls.
+      res.redirect('/urls');
+  } else {
+    // if cookie found, proceed to the next route handler
+      next(); 
+  }
+}
+
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -119,8 +130,8 @@ app.post("/urls/:id/update", (req, res) => {
   res.redirect("/urls");
 });
 
-//render login template
-app.get("/login", (req, res) => {
+//render login template, check to ensure user is not already lodding in before rendering
+app.get("/login", checkIfLoggedIn, (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id], // passes user to login page
   };
@@ -154,8 +165,8 @@ app.post("/logout", (req, res) => {
   res.redirect("/login");
 });
 
-//render register template
-app.get("/register", (req, res) => {
+//render register template, check to ensure user is not already lodding in before rendering
+app.get("/register", checkIfLoggedIn, (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id], // passes user to urls/new page
   };
