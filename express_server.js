@@ -30,6 +30,15 @@ function generateRandomID() {
   }
   return randomString;
 }
+  //check if email already registered
+  function findUserWithEmail(users, email) {
+    for (const userKey in users) {
+      if (users[userKey].email === email) {
+        return users[userKey];
+      }
+    }
+   return false;
+  }
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -110,11 +119,32 @@ app.post("/urls/:id/update", (req, res) => {
   res.redirect("/urls");
 });
 
+//render login template
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user: users[req.cookies.user_id], // passes user to login page
+  };
+  res.render("login", templateVars);
+});
+
 //create username, store username in 'username' cookie
 app.post("/login", (req, res) => {
-  const { user } = req.body;
-  //set cookie named 'user'
-  res.cookie('user_id', user);
+  //extract email and password from the request body
+  const { email, password } = req.body;
+
+  //if email is not registered to a user, return 403 status code
+  const user = findUserWithEmail(users, email)
+  if (!user) {
+    return res.status(403).send("Email not valid");
+  } 
+   
+  //check if password is the same as password for user with corresponding email
+  if (user.password !== password) {
+    return res.status(403).send("Incorrect password");
+  } 
+
+  //if email and password are correct, store cookie to login
+  res.cookie('user_id', user.id);
   res.redirect("/urls");
 });
 
@@ -143,18 +173,8 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     return res.status(400).send("Email and password cannot be blank.");
   }
-
-  //check if email already exists in users object
-  function isEmailRegistered(users, email) {
-    for (const userKey in users) {
-      if (users[userKey].email === email) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  if (isEmailRegistered(users, email)) {
+  //if email already exists, return status code 400
+  if (findUserWithEmail(users, email)) {
     return res.status(400).send("Email already registered.");
   }
 
@@ -165,7 +185,7 @@ app.post("/register", (req, res) => {
     password: password
   };
 
-  //set cookie for user_id
+  //set cookie for user_id to login
   res.cookie('user_id', userId);
   res.redirect("/urls");
 });
@@ -176,13 +196,6 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-//render login template
-app.get("/login", (req, res) => {
-  const templateVars = {
-    user: users[req.cookies.user_id], // passes user to login page
-  };
-  res.render("login", templateVars);
-});
 
 //display single URL from urlDatabase
 app.get("/urls/:id", (req, res) => {
