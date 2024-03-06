@@ -151,7 +151,7 @@ app.post("/login", (req, res) => {
 //implement logout by clearing username cookie
 app.post("/logout", (req, res) => {
   res.clearCookie('user_id');
-  res.redirect("/urls");
+  res.redirect("/login");
 });
 
 //render register template
