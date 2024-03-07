@@ -52,8 +52,14 @@ function checkIfLoggedIn(req, res, next) {
 }
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    longURL: "https://www.tsn.ca",
+    userID: "aJ48lW",
+  },
+  i3BoGr: {
+    longURL: "https://www.google.ca",
+    userID: "aJ48lW",
+  },
 };
 
 //object to store user registration data
@@ -100,7 +106,6 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id], // passes user to urls/new page
   };
-
   //redirect to login page if user is not logged in
   if (!req.cookies.user_id) {
     res.redirect('/login');
@@ -122,7 +127,11 @@ app.post("/urls", (req, res) => {
   // defines longURL
   const { longURL } = req.body;
   //add key:value pair of  id:longURL to database
-  urlDatabase[id] = longURL;
+  urlDatabase[id] = {
+    longURL: longURL,
+    userID: req.cookies.user_id
+  };
+  console.log(urlDatabase);
   //redirects used to new page with new short URL
   res.redirect(`/urls/${id}`);
 });
@@ -136,9 +145,10 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //update specific longURL based on ID selected by user
 app.post("/urls/:id/update", (req, res) => {
+  const id = req.params.id;
   const { newLongURL } = req.body;
   //update longURL in urlDatabase based on ID
-  urlDatabase[req.params.id] = newLongURL;
+  urlDatabase[id].longURL = newLongURL;
   res.redirect("/urls");
 });
 
@@ -215,22 +225,23 @@ app.post("/register", (req, res) => {
 
 //handle shortURL requests to redirect shortURL click to longURL
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const id = req.params.id;
+  const longURL = urlDatabase[id].longURL;
   //display HTML error message if is does not exist
-  if (urlDatabase[req.params.id] === undefined) {
+  if (urlDatabase[id] === undefined) {
     return res.send('TinyURL does not exist.');
   }
-
   res.redirect(longURL);
 });
 
 
 //display single URL from urlDatabase
 app.get("/urls/:id", (req, res) => {
+  const id = req.params.id;
   //pass longURL and url ID to templateVars object
   const templateVars = {
     id: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[id].longURL,
     user: users[req.cookies.user_id] // passes user_id to display to user
   };
   //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
