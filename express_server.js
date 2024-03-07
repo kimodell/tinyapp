@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require("cookie-parser");
+const { urlDatabase, users, generateRandomString, generateRandomID, findUserWithEmail, checkIfLoggedIn, checkIfNotLoggedIn, } = require('./functions/helperFunctions');
+
 
 //set EJS as view engine
 app.set("view engine", "ejs");
@@ -11,70 +13,6 @@ app.use(express.urlencoded({ extended: true }));
 //parses cookie to display tp user
 app.use(cookieParser());
 
-//generate random string to create shortURL ID
-function generateRandomString() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let randomString = "";
-  for (let i = 0; i < 6; i++) {
-    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return randomString;
-}
-
-//generate random user ID
-function generateRandomID() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let randomString = "";
-  for (let i = 0; i < 6; i++) {
-    randomString += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return randomString;
-}
-//check if email already registered
-function findUserWithEmail(users, email) {
-  for (const userKey in users) {
-    if (users[userKey].email === email) {
-      return users[userKey];
-    }
-  }
-  return false;
-}
-
-function checkIfLoggedIn(req, res, next) {
-  //chek to see if user_id cookie is already stored
-  if (req.cookies.user_id) {
-    //if cookie is found, user is logged in. Redirect to /urls.
-    res.redirect('/urls');
-  } else {
-    // if cookie found, proceed to the next route handler
-    next();
-  }
-}
-
-const urlDatabase = {
-  b6UTxQ: {
-    longURL: "https://www.tsn.ca",
-    userID: "aJ48lW",
-  },
-  i3BoGr: {
-    longURL: "https://www.google.ca",
-    userID: "aJ48lW",
-  },
-};
-
-//object to store user registration data
-const users = {
-  userRandomID: {
-    id: "userRandomID",
-    email: "a@a.com",
-    password: "1234",
-  },
-  user2RandomID: {
-    id: "user2RandomID",
-    email: "b@b.com",
-    password: "5678",
-  },
-};
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -102,16 +40,11 @@ app.get("/urls", (req, res) => {
 });
 
 //render template in urls_new/.ejs in browser
-app.get("/urls/new", (req, res) => {
+app.get("/urls/new", checkIfNotLoggedIn, (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id], // passes user to urls/new page
   };
-  //redirect to login page if user is not logged in
-  if (!req.cookies.user_id) {
-    res.redirect('/login');
-  } else {
-    res.render("urls_new", templateVars);
-  }
+  res.render("urls_new", templateVars);
 });
 
 //handle from submssion to create and save shortURL
@@ -131,7 +64,6 @@ app.post("/urls", (req, res) => {
     longURL: longURL,
     userID: req.cookies.user_id
   };
-  console.log(urlDatabase);
   //redirects used to new page with new short URL
   res.redirect(`/urls/${id}`);
 });
