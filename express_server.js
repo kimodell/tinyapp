@@ -42,12 +42,12 @@ function findUserWithEmail(users, email) {
 
 function checkIfLoggedIn(req, res, next) {
   //chek to see if user_id cookie is already stored
-  if (req.cookies['user_id']) {
-      //if cookie is found, user is logged in. Redirect to /urls.
-      res.redirect('/urls');
+  if (req.cookies.user_id) {
+    //if cookie is found, user is logged in. Redirect to /urls.
+    res.redirect('/urls');
   } else {
     // if cookie found, proceed to the next route handler
-      next(); 
+    next();
   }
 }
 
@@ -100,11 +100,22 @@ app.get("/urls/new", (req, res) => {
   const templateVars = {
     user: users[req.cookies.user_id], // passes user to urls/new page
   };
-  res.render("urls_new", templateVars);
+
+  //redirect to login page if user is not logged in
+  if (!req.cookies.user_id) {
+    res.redirect('/login');
+  } else {
+    res.render("urls_new", templateVars);
+  }
 });
 
 //handle from submssion to create and save shortURL
 app.post("/urls", (req, res) => {
+  
+  if (!req.cookies.user_id) {
+    return res.send('<html><body><p>You must be logged in to shorten URLs. Please <a href="/login">login</a> or <a href="/register">register</a>.</p></body></html>');
+  }
+
   //generate random ID to be used as shortURL
   const id = generateRandomString();
   // defines longURL
