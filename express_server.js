@@ -111,9 +111,10 @@ app.get("/urls/new", (req, res) => {
 
 //handle from submssion to create and save shortURL
 app.post("/urls", (req, res) => {
-  
+
+  //display HTML error message used is not logged in
   if (!req.cookies.user_id) {
-    return res.send('<html><body><p>You must be logged in to shorten URLs. Please <a href="/login">login</a> or <a href="/register">register</a>.</p></body></html>');
+    return res.send('You must be logged in to shorten URLs.');
   }
 
   //generate random ID to be used as shortURL
@@ -215,6 +216,11 @@ app.post("/register", (req, res) => {
 //handle shortURL requests to redirect shortURL click to longURL
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+  //display HTML error message if is does not exist
+  if (urlDatabase[req.params.id] === undefined) {
+    return res.send('TinyURL does not exist.');
+  }
+
   res.redirect(longURL);
 });
 
