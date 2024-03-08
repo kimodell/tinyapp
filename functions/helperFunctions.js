@@ -6,7 +6,11 @@ let urlDatabase = {
   },
   i3BoGr: {
     longURL: "https://www.google.ca",
-    userID: "aJ48lW",
+    userID: "userRandomID",
+  },
+  lol123: {
+    longURL: "https://www.neopets.com",
+    userID: "user2RandomID",
   },
 };
 
@@ -51,7 +55,7 @@ function findUserWithEmail(users, email) {
       return users[userKey];
     }
   }
-  return ;
+  return;
 }
 
 function checkIfLoggedIn(req, res, next) {
@@ -75,6 +79,18 @@ function checkIfNotLoggedIn(req, res, next) {
   }
 }
 
+function urlsForUser(id) {
+  //define object for user specific urls 
+  let userUrls = {};
+  //if id matches is in urlsDatabse, add that urlID to userURLs
+  for (let urlID in urlDatabase) {
+    if (urlDatabase[urlID].userID === id) {
+      userUrls[urlID] = urlDatabase[urlID];
+    }
+  }
+  return userUrls;
+}
+
 
 module.exports = {
   urlDatabase,
@@ -84,4 +100,5 @@ module.exports = {
   findUserWithEmail,
   checkIfLoggedIn,
   checkIfNotLoggedIn,
+  urlsForUser,
 };

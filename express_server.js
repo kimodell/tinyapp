@@ -2,7 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require("cookie-parser");
-const { urlDatabase, users, generateRandomString, generateRandomID, findUserWithEmail, checkIfLoggedIn, checkIfNotLoggedIn, } = require('./functions/helperFunctions');
+const { urlDatabase, users, generateRandomString, generateRandomID, findUserWithEmail, checkIfLoggedIn, checkIfNotLoggedIn, urlsForUser, } = require('./functions/helperFunctions');
 
 
 //set EJS as view engine
@@ -30,10 +30,20 @@ app.get("/hello", (req, res) => {
 
 //display entire urlDatabase in /urls
 app.get("/urls", (req, res) => {
+  //set userId from userId in cookies
+  const userId = req.cookies.user_id;
+
+  //if no userId, redirect user to login page
+  if(!userId) {
+    return res.redirect("/login");
+  }
+  //call urlsForUser function with current logged in user's id
+  const userUrls = urlsForUser(userId);
+
   //pass urlDatabase info to templateVars
   const templateVars = {
     user: users[req.cookies.user_id], // passes user to urls index page
-    urls: urlDatabase,
+    urls: userUrls,
   };
   // render url_index template to display info in templateVars to client
   res.render("urls_index", templateVars);
