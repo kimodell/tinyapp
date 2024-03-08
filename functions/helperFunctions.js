@@ -91,6 +91,20 @@ function urlsForUser(id) {
   return userUrls;
 }
 
+function doesURLBelongToUser(req, res, next) {
+  const userID = req.cookies.user_id;
+  const urlID = req.params.id;
+   //display HTML error message user is not logged in
+  if (!userID) {
+    return res.send('You must be logged in to view URLs.');
+  }
+   //display HTML error message user does not own URL
+  if (urlDatabase[urlID].userID !== userID) {
+    res.send('You do not have permission to view URLs.');
+  } else {
+    next();
+  }
+}
 
 module.exports = {
   urlDatabase,
@@ -101,4 +115,5 @@ module.exports = {
   checkIfLoggedIn,
   checkIfNotLoggedIn,
   urlsForUser,
+  doesURLBelongToUser
 };
