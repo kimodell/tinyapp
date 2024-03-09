@@ -11,26 +11,30 @@ app.set("view engine", "ejs");
 
 //parse body for POST from a Buffer to a string
 app.use(express.urlencoded({ extended: true }));
-//parses cookie to display tp user
-//app.use(cookieParser());
+app.use(express.json());
+//encrypt cookie using cookieSession
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
 
-
+//check if there is a cookie stored
 app.get("/", (req, res) => {
-  res.send("Hello!");
+
+  const userID = req.session.user_id;
+
+  //if no cookie was created, redirect user to login
+  if (!userID) {
+    return res.redirect("/login");
+  }
+  else {
+    return res.redirect("/urls");
+  }
 });
 
 //additional endpoints
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
-});
-
-//additional response containing HTML code to be rendered in client browser
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 //display entire urlDatabase in /urls
@@ -40,7 +44,7 @@ app.get("/urls", (req, res) => {
 
   //if no userId, redirect user to login page
   if (!userId) {
-    return res.redirect("/login");
+    return res.send('You must be logged in to view URLs.');
   }
   //call urlsForUser function with current logged in user's id
   const userUrls = urlsForUser(userId);
@@ -152,7 +156,7 @@ app.post("/login", (req, res) => {
 
   //check if password is the same as password for user with corresponding email
   if (!bcrypt.compareSync(password, user.password)) {
-    return res.status(403).send("Invalid bcrypt login");
+    return res.status(403).send("Invalid  login");
   }
 
   //if email and password are correct, store cookie to login
