@@ -3,7 +3,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
-const { urlDatabase, users, generateRandomString, generateRandomID, findUserWithEmail, checkIfLoggedIn, checkIfNotLoggedIn, urlsForUser, doesURLBelongToUser } = require('./functions/helperFunctions');
+const { urlDatabase, users, generateRandomString, generateRandomID, getUserByEmail, checkIfLoggedIn, checkIfNotLoggedIn, urlsForUser, doesURLBelongToUser } = require('./functions/helperFunctions');
 
 
 //set EJS as view engine
@@ -144,7 +144,7 @@ app.post("/login", (req, res) => {
   const { email, password } = req.body;
 
   //if email is not registered to a user, return 403 status code
-  const user = findUserWithEmail(users, email);
+  const user = getUserByEmail(users, email);
 
   if (!user) {
     return res.status(403).send("Invalid login");
@@ -190,7 +190,7 @@ app.post("/register", (req, res) => {
     return res.status(400).send("Email and password cannot be blank.");
   }
   //if email already exists, return status code 400
-  if (findUserWithEmail(users, email)) {
+  if (getUserByEmail(users, email)) {
     return res.status(400).send("Email already registered.");
   }
 

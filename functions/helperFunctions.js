@@ -49,13 +49,13 @@ function generateRandomID() {
 }
 
 //check if email already registered
-function findUserWithEmail(users, email) {
+function getUserByEmail(users, email) {
   for (const userKey in users) {
     if (users[userKey].email === email) {
       return users[userKey];
     }
   }
-  return;
+  return null;
 }
 
 function checkIfLoggedIn(req, res, next) {
@@ -112,7 +112,7 @@ module.exports = {
   users,
   generateRandomString,
   generateRandomID,
-  findUserWithEmail,
+  getUserByEmail,
   checkIfLoggedIn,
   checkIfNotLoggedIn,
   urlsForUser,
