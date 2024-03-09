@@ -60,7 +60,7 @@ function findUserWithEmail(users, email) {
 
 function checkIfLoggedIn(req, res, next) {
   //check to see if user_id cookie is already stored
-  if (req.cookies.user_id) {
+  if (req.session.user_id) {
     //if cookie is found, user is logged in. Redirect to /urls.
     res.redirect('/urls');
   } else {
@@ -71,7 +71,7 @@ function checkIfLoggedIn(req, res, next) {
 
 function checkIfNotLoggedIn(req, res, next) {
   //check to see if user_id cookie is not already stored
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     //if cookie is not found,redirect to /urls.
     res.redirect('/login');
   } else {
@@ -92,7 +92,8 @@ function urlsForUser(id) {
 }
 
 function doesURLBelongToUser(req, res, next) {
-  const userID = req.cookies.user_id;
+  //check if URL belong to logged in user 
+  const userID = req.session.user_id;
   const urlID = req.params.id;
    //display HTML error message user is not logged in
   if (!userID) {

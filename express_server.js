@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
-const cookieParser = require("cookie-parser");
+const cookieSession = require('cookie-session');
 const bcrypt = require("bcryptjs");
 const { urlDatabase, users, generateRandomString, generateRandomID, findUserWithEmail, checkIfLoggedIn, checkIfNotLoggedIn, urlsForUser, doesURLBelongToUser } = require('./functions/helperFunctions');
 
@@ -12,7 +12,11 @@ app.set("view engine", "ejs");
 //parse body for POST from a Buffer to a string
 app.use(express.urlencoded({ extended: true }));
 //parses cookie to display tp user
-app.use(cookieParser());
+//app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}));
 
 
 app.get("/", (req, res) => {
@@ -32,7 +36,7 @@ app.get("/hello", (req, res) => {
 //display entire urlDatabase in /urls
 app.get("/urls", (req, res) => {
   //set userId from userId in cookies
-  const userId = req.cookies.user_id;
+  const userId = req.session.user_id;
 
   //if no userId, redirect user to login page
   if (!userId) {
@@ -43,7 +47,7 @@ app.get("/urls", (req, res) => {
 
   //pass urlDatabase info to templateVars
   const templateVars = {
-    user: users[req.cookies.user_id], // passes user to urls index page
+    user: users[req.session.user_id], // passes user to urls index page
     urls: userUrls,
   };
   // render url_index template to display info in templateVars to client
@@ -53,7 +57,7 @@ app.get("/urls", (req, res) => {
 //render template in urls_new/.ejs in browser
 app.get("/urls/new", checkIfNotLoggedIn, (req, res) => {
   const templateVars = {
-    user: users[req.cookies.user_id], // passes user to urls/new page
+    user: users[req.session.user_id], // passes user to urls/new page
   };
   res.render("urls_new", templateVars);
 });
@@ -62,7 +66,7 @@ app.get("/urls/new", checkIfNotLoggedIn, (req, res) => {
 app.post("/urls", (req, res) => {
 
   //display HTML error message used is not logged in
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     return res.send('You must be logged in to shorten URLs.');
   }
 
@@ -73,7 +77,7 @@ app.post("/urls", (req, res) => {
   //add key:value pair of  id:longURL to database
   urlDatabase[id] = {
     longURL: longURL,
-    userID: req.cookies.user_id
+    userID: req.session.user_id
   };
   //redirects used to new page with new short URL
   res.redirect(`/urls/${id}`);
@@ -81,7 +85,7 @@ app.post("/urls", (req, res) => {
 
 //delete specific existing shortened URL from database
 app.post("/urls/:id/delete", (req, res) => {
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   //assign user id for logged in user to allow for deletion 
   const userCanDelete = req.params.id;
 
@@ -107,7 +111,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id/update", (req, res) => {
   const id = req.params.id;
   const { newLongURL } = req.body;
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
 
   const urlID = urlDatabase[id];
 
@@ -129,7 +133,7 @@ app.post("/urls/:id/update", (req, res) => {
 //render login template, check to ensure user is not already lodding in before rendering
 app.get("/login", checkIfLoggedIn, (req, res) => {
   const templateVars = {
-    user: users[req.cookies.user_id], // passes user to login page
+    user: users[req.session.user_id], // passes user to login page
   };
   res.render("login", templateVars);
 });
@@ -152,20 +156,22 @@ app.post("/login", (req, res) => {
   }
 
   //if email and password are correct, store cookie to login
-  res.cookie('user_id', user.id);
+  //res.cookie('user_id', user.id);
+  req.session.user_id = user.id;
   res.redirect("/urls");
 });
 
 //implement logout by clearing user_id cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie('user_id');
+  //clear cookie by logging out or closing session
+  req.session = null;
   res.redirect("/login");
 });
 
 //render register template, check to ensure user is not already lodding in before rendering
 app.get("/register", checkIfLoggedIn, (req, res) => {
   const templateVars = {
-    user: users[req.cookies.user_id], // passes user to urls/new page
+    user: users[req.session.user_id], // passes user to urls/new page
   };
   res.render("register", templateVars);
 });
@@ -196,7 +202,8 @@ app.post("/register", (req, res) => {
   };
 
   //set cookie for user_id to login
-  res.cookie('user_id', userId);
+  //res.cookie('user_id', userId);
+  req.session.user_id = userId;
   res.redirect("/urls");
 });
 
@@ -219,7 +226,7 @@ app.get("/urls/:id", doesURLBelongToUser, (req, res) => {
   const templateVars = {
     id: req.params.id,
     longURL: urlDatabase[id].longURL,
-    user: users[req.cookies.user_id] // passes user_id to display to user
+    user: users[req.session.user_id] // passes user_id to display to user
   };
   //pass templateVars containing single URL and it's shortened form to urls_show to diplay to client
   res.render("urls_show", templateVars);
