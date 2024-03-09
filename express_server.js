@@ -80,7 +80,24 @@ app.post("/urls", (req, res) => {
 
 //delete specific existing shortened URL from database
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
+  const userID = req.cookies.user_id;
+  //assign user id for logged in user to allow for deletion 
+  const userCanDelete = req.params.id;
+
+  const urlID = urlDatabase[userCanDelete];
+
+  //display HTML error message url does not exist
+  if (!urlID) {
+    return res.send('Invalid URL');
+  }
+
+  //display HTML error message if user does not own URL
+  if (urlID.userID !== userID) {
+    return res.send('You do not have permission to view URL');
+  } else { //user can delete if user owns url
+    delete urlDatabase[userCanDelete];
+  }
+
   //redirect user back to urls index page
   res.redirect("/urls");
 });
@@ -89,8 +106,22 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/urls/:id/update", (req, res) => {
   const id = req.params.id;
   const { newLongURL } = req.body;
-  //update longURL in urlDatabase based on ID
-  urlDatabase[id].longURL = newLongURL;
+  const userID = req.cookies.user_id;
+
+  const urlID = urlDatabase[id];
+
+  //display HTML error message url does not exist
+  if (!urlID) {
+    return res.send('Invalid URL');
+  }
+
+  //display HTML error message if user does not own URL
+  if (urlID.userID !== userID) {
+    return res.send('You do not have permission to edit URL');
+  } else { //update longURL in urlDatabase based on ID
+    urlDatabase[id].longURL = newLongURL;
+  }
+
   res.redirect("/urls");
 });
 

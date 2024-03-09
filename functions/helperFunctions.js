@@ -115,5 +115,5 @@ module.exports = {
   checkIfLoggedIn,
   checkIfNotLoggedIn,
   urlsForUser,
-  doesURLBelongToUser
+  doesURLBelongToUser,
 };
