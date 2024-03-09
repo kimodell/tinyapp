@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 const { urlDatabase, users, generateRandomString, generateRandomID, findUserWithEmail, checkIfLoggedIn, checkIfNotLoggedIn, urlsForUser, doesURLBelongToUser } = require('./functions/helperFunctions');
 
 
@@ -140,13 +141,14 @@ app.post("/login", (req, res) => {
 
   //if email is not registered to a user, return 403 status code
   const user = findUserWithEmail(users, email);
+
   if (!user) {
     return res.status(403).send("Invalid login");
   }
 
   //check if password is the same as password for user with corresponding email
-  if (user.password !== password) {
-    return res.status(403).send("Invalid login");
+  if (!bcrypt.compareSync(password, user.password)) {
+    return res.status(403).send("Invalid bcrypt login");
   }
 
   //if email and password are correct, store cookie to login
@@ -174,6 +176,8 @@ app.post("/register", (req, res) => {
   const userId = generateRandomID();
   //extract email and password from the request body
   const { email, password } = req.body;
+  //save hash of password
+  const hashedPassword = bcrypt.hashSync(password, 10);
 
   //check if email or password is empty
   if (!email || !password) {
@@ -188,7 +192,7 @@ app.post("/register", (req, res) => {
   users[userId] = {
     id: userId,
     email: email,
-    password: password
+    password: hashedPassword
   };
 
   //set cookie for user_id to login
