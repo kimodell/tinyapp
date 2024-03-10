@@ -7,7 +7,7 @@ Never worry about running out of characters in your social media posts again, th
 ## Functional Capabilities
 
 - Shorten lengthy URLs into easy to use shortened links 
-- Easy-to-use and user friendly
+- User-friendly
 - Secure registration, login and access control
 
 ## Dependencies
